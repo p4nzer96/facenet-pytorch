@@ -308,7 +308,21 @@ def imresample(img, sz):
 
 def crop_resize(img, box, image_size):
     if isinstance(img, np.ndarray):
-        img = img[box[1]:box[3], box[0]:box[2]]
+        # box[1] -> y1
+        # box[3] -> y2
+        # box[0] -> x1
+        # box[2] -> x2
+        h = box[3] - box[1]
+        w = box[2] - box[0]
+        yc = box[1] + h // 2
+        xc = box[0] + w // 2
+        intermediate_size = max(w, h)
+        y0 = max(0, yc - intermediate_size // 2)
+        y1 = min(img.shape[0], yc + intermediate_size // 2)
+        x0 = max(0, xc - intermediate_size // 2)
+        x1 = min(img.shape[1], xc + intermediate_size // 2)
+        img = img[y0:y1, x0:x1]
+
         out = cv2.resize(
             img,
             (image_size, image_size),
